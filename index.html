@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AJ Digital Art</title>
+  <meta property="og:title" content="AJ Digital Art" />
+  <meta property="og:description" content="Historias visuales cinematográficas: bodas, quinceañeras, sesiones y comercial." />
+  <meta property="og:url" content="https://michitodisenador.github.io/AJ_Portfolio/" />
+  <meta property="og:image" content="https://michitodisenador.github.io/AJ_Portfolio/hero/HERO_7_MUSICOS_YOUTUBE.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <meta name="description" content="AJ Digital Art. Estudio fotográfico de Andrés Jesús Marroquín Pérez. Historias visuales cinematográficas — bodas, quinceañeras, sesiones y comercial." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['"Neue Haas Grotesk Display Pro"', '"Helvetica Neue"', 'Helvetica', 'Arial', 'system-ui', 'sans-serif'],
+            body: ['Poppins', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+
+  <style>
+    /* 🔧 FIX #4 — Fondo continuo: mismo color en html, body y matte */
+    html, body {
+      background-color: #0a0a0a;
+      color: #f7f7f7;
+      font-family: 'Poppins', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+    ::selection { background: oklch(0.92 0.18 130); color: #0a0a0a; }
+    .font-display {
+      font-family: 'Neue Haas Grotesk Display Pro', 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
+      letter-spacing: -0.02em;
+    }
+    .text-lime { color: oklch(0.92 0.18 130); }
+    .bg-lime { background-color: oklch(0.92 0.18 130); }
+    /* 🔧 FIX #4 — matte ahora es casi idéntico al body para que no se note el corte */
+    .matte { background-color: transparent; }
+
+/* Reveal elegante: opacidad + micro desplazamiento MUY suave y lento */
+.anim-base {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition: opacity 3.5s cubic-bezier(0.19, 1, 0.22, 1),
+              transform 3.5s cubic-bezier(0.19, 1, 0.22, 1);
+}
+.anim-base.anim-in {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+.anim-photo {
+  opacity: 0;
+  transform: scale(0.97);
+  transition: opacity 4s cubic-bezier(0.19, 1, 0.22, 1),
+              transform 4s cubic-bezier(0.19, 1, 0.22, 1);
+}
+.anim-photo.anim-in {
+  opacity: 1;
+  transform: scale(1);
+}
+
+    #boot-error {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #111;
+      color: #f66;
+      padding: 40px;
+      font-family: monospace;
+      font-size: 13px;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+
+        /* 🔧 Animación de entrada para las fotos de cada galería */
+    .gallery-item {
+      animation: galleryIn 900ms cubic-bezier(0.19, 1, 0.22, 1) both;
+      opacity: 0;
+      transform: translate3d(0, 24px, 0);
+    }
+    @keyframes galleryIn {
+      from { opacity: 0; transform: translate3d(0, 24px, 0); }
+      to   { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+
+    /* 🔧 Scroll suave y barra de scroll estilizada dentro del modal */
+    .gallery-scroll {
+      scroll-behavior: smooth;
+    }
+    .gallery-scroll::-webkit-scrollbar { width: 8px; }
+    .gallery-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
+    .gallery-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+    .gallery-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+  </style>
+</head>
+
+<body>
+<div id="boot-error"></div>
+<div id="root"></div>
+
+<script>
+  window.addEventListener('error', function (e) {
+    var el = document.getElementById('boot-error');
+    if (el && !el.textContent) {
+      el.style.display = 'block';
+      el.textContent = 'ERROR: ' + (e.message || e.error) + '\n\n' + (e.error && e.error.stack ? e.error.stack : '');
+    }
+  });
+</script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef } = React;
+
+const BRAND = 'AJ Digital Art';
+const PHOTOGRAPHER = 'Andrés Jesús';
+const PHOTOGRAPHER_LAST = 'Marroquín Pérez';
+const EMAIL = 'ajdigitalartstudio@gmail.com';
+
+const SOCIALS = [
+  { name: 'Instagram', url: 'https://www.instagram.com/ajdigitalartstudio', icon: 'instagram' },
+  { name: 'Facebook',  url: 'https://www.facebook.com/AJDigitalArtMX',       icon: 'facebook'  },
+  { name: 'YouTube',   url: 'https://www.youtube.com/@AJMarqDigitalArt',     icon: 'youtube'   },
+  { name: 'TikTok',    url: 'https://www.tiktok.com/@ajmarq',                icon: 'tiktok'    },
+];
+
+function asset(path) {
+  return path.split('/').map(encodeURIComponent).join('/');
+}
+
+const ASSETS = {
+  logo: asset('hero/LOGO_AJ_1.png'),
+  logo2: asset('hero/LOGO_AJ_2.png'),
+  hero1: asset('hero/HERO_1_TORITO_TIKTOK.jpg'),
+  hero2: asset('hero/HERO_2_TAMBOR.jpg'),
+  hero3: asset('hero/HERO_3_PASTEL_INSTAGRAM.jpg'),
+  hero4: asset('hero/HERO_4_BODA.jpg'),
+  hero5: asset('hero/HERO_5_TULIPAN_FACEBOOK.jpg'),
+  hero6: asset('hero/HERO_6_QUINCE.jpg'),
+  hero7: asset('hero/HERO_7_MUSICOS_YOUTUBE.jpg'),
+  about:        asset('about/ABOUT.jpg'),
+  aboutBack1:   asset('about/FOTO_TRASERA_1.jpg'),
+  aboutBack2:   asset('about/FOTO_TRASERA_2.jpg'),
+  aboutBack3:   asset('about/FOTO_TRASERA_3.jpg'),
+  aboutBack5:   asset('about/FOTO_TRASERA_5.jpg'),
+  portfolioBodas:      asset('portfolio/FOTO_BODAS.jpg'),
+  portfolioComercial:  asset('portfolio/FOTO_COMERCIAL.jpg'),
+  portfolioPremios:    asset('portfolio/FOTO_PREMIOS.jpg'),
+  portfolioQuince:     asset('portfolio/FOTO_QUINCEANOS.jpg'),
+  portfolioSesiones:   asset('portfolio/FOTO_SESIONES.jpg'),
+  portfolioDigitalArt:         asset('portfolio/DIGITALART.jpg'),
+portfolioDeportesEspect:     asset('portfolio/DEPORTES_Y_ESPECTACULOS.jpg'),
+  contactBg: asset('contact/CONTACTO_BACKGROUND.jpg'),
+};
+
+/* ============ GALERÍAS DE PORTAFOLIO ============ */
+const GALLERY_COUNTS = {
+  bodas: 28,
+  quinceycumpleanos: 15,
+  sesiones: 31,
+  comerciales: 10,
+  premiados: 9,
+  digitalart: 6,
+  deportesyespectaculos: 29,
+};
+
+const GALLERY_TITLES = {
+  bodas: 'Bodas',
+  quinceycumpleanos: 'Quinceañeras y Cumpleaños',
+  sesiones: 'Sesiones',
+  comerciales: 'Comerciales',
+  premiados: 'Premiados',
+  digitalart: 'Digital Art',
+  deportesyespectaculos: 'Deportes y Espectáculos',
+};
+
+function buildGallery(folder) {
+  const total = GALLERY_COUNTS[folder] || 0;
+  const arr = [];
+  for (let i = 1; i <= total; i++) {
+  arr.push(asset('portfolio/portafolio_de_proyectos/' + folder + '/' + i + '.jpg'));
+  }
+  return arr;
+}
+
+const GALLERIES = {
+  bodas: buildGallery('bodas'),
+  quinceycumpleanos: buildGallery('quinceycumpleanos'),
+  sesiones: buildGallery('sesiones'),
+  comerciales: buildGallery('comerciales'),
+  premiados: buildGallery('premiados'),
+  digitalart: buildGallery('digitalart'),
+  deportesyespectaculos: buildGallery('deportesyespectaculos'),
+};
+
+// 🔧 Galería "Mix" para "Ver las obras"
+const ALL_GALLERY_KEYS = ['bodas', 'quinceycumpleanos', 'sesiones', 'comerciales', 'premiados', 'digitalart', 'deportesyespectaculos'];
+let mixCache = [];
+
+function getMixedGallery() {
+  if (mixCache.length > 0) return mixCache;
+  
+  let allPhotos = [];
+  ALL_GALLERY_KEYS.forEach(function(key) {
+    const photos = GALLERIES[key] || [];
+    allPhotos = allPhotos.concat(photos);
+  });
+  
+  // Mezclar al azar (Algoritmo Fisher-Yates)
+  for (let i = allPhotos.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = allPhotos[i];
+    allPhotos[i] = allPhotos[j];
+    allPhotos[j] = temp;
+  }
+  
+  // Tomar solo 40 fotos al azar para no saturar (puedes cambiar el 40)
+  mixCache = allPhotos.slice(0, 40);
+  return mixCache;
+}
+
+// Añadimos la galería "mix" al objeto GALLERIES
+GALLERIES['mix'] = getMixedGallery();
+GALLERY_TITLES['mix'] = 'Obras Destacadas';
+
+/* ============ ICONOS ============ */
+function IconArrowUpRight({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="7" y1="17" x2="17" y2="7" />
+      <polyline points="7 7 17 7 17 17" />
+    </svg>
+  );
+}
+function IconMenu({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <line x1="3" y1="12" x2="21" y2="12" />
+      <line x1="3" y1="18" x2="21" y2="18" />
+    </svg>
+  );
+}
+function IconClose({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+}
+function IconMoveRight({ className, style }) {
+  return (
+    <svg className={className} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </svg>
+  );
+}
+function IconInstagram({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+    </svg>
+  );
+}
+function IconFacebook({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+    </svg>
+  );
+}
+function IconYoutube({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z" />
+      <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+function IconTikTok({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.8 20.1a6.34 6.34 0 0 0 10.86-4.43V8.83a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.84-.26z" />
+    </svg>
+  );
+}
+
+function SocialIcon({ name, className }) {
+  switch (name) {
+    case 'instagram': return <IconInstagram className={className} />;
+    case 'facebook':  return <IconFacebook className={className} />;
+    case 'youtube':   return <IconYoutube className={className} />;
+    case 'tiktok':    return <IconTikTok className={className} />;
+    default:          return null;
+  }
+}
+
+/* ============ HOOK ============ */
+function useInView(threshold) {
+  const th = threshold === undefined ? 0.15 : threshold;
+  const ref = useRef(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(function () {
+    const el = ref.current;
+    if (!el) return;
+    let cancelled = false;
+
+    const trigger = function () {
+      // 2 frames + 80ms: garantiza que el navegador pintó opacity:0
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          setTimeout(function () {
+            if (!cancelled) setInView(true);
+          }, 80);
+        });
+      });
+    };
+
+    const obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          trigger();
+          obs.disconnect();
+        }
+      });
+    }, { threshold: th }); // sin rootMargin negativo
+
+    obs.observe(el);
+    return function () {
+      cancelled = true;
+      obs.disconnect();
+    };
+  }, [th]);
+
+  return [ref, inView];
+}
+
+/* ============ SAFE IMAGE ============ */
+function SafeImage({ src, alt, className, style, decorative }) {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => { setFailed(false); }, [src]);
+
+  if (!src) return null;
+  if (failed && decorative) return null;
+  if (failed) {
+    return <div className={className} style={Object.assign({}, style, { backgroundColor: 'oklch(0.18 0 0)' })} aria-hidden="true" />;
+  }
+  return (
+    <img
+      src={src}
+      alt={decorative ? '' : (alt || '')}
+      className={className}
+      style={style}
+      onError={function () { setFailed(true); }}
+      aria-hidden={decorative ? 'true' : undefined}
+    />
+  );
+}
+
+/* ============ NEBULOSA ============ */
+function rand(a, b) { return a + Math.random() * (b - a); }
+
+function StarField(props) {
+  const count = props.count || 300;
+  const ring = props.ring || false;
+
+  const canvasRef = useRef(null);
+  const stateRef = useRef({ particles: [], blobs: [] });
+  const rafRef = useRef(0);
+  const sizeRef = useRef({ w: 0, h: 0 });
+
+  useEffect(function () {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const parent = canvas.parentElement;
+    if (!parent) return;
+
+    const build = function (w, h) {
+      // --- Blobs de nebulosa (manchas de luz muy difusas) ---
+      const blobs = [];
+      const blobCount = 4;
+      for (let i = 0; i < blobCount; i++) {
+        // Primera = lima (acento de marca), segunda = azulada, resto = blancas
+        let hue;
+        if (i === 0) hue = 'lime';
+        else if (i === 1) hue = 'blue';
+        else hue = 'white';
+
+        blobs.push({
+          x: rand(0, w),
+          y: rand(0, h),
+          r: 220 + Math.random() * 280,
+          vx: (Math.random() - 0.5) * 0.15,
+          vy: (Math.random() - 0.5) * 0.15,
+          hue: hue,
+          opacity: 0.025 + Math.random() * 0.03,
+        });
+      }
+
+      // --- Partículas pequeñas sobre la nebulosa ---
+      const particles = [];
+      const particleCount = Math.min(count, Math.floor((w * h) / 8000));
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: 0.3 + Math.random() * 0.9,
+          vy: -(0.02 + Math.random() * 0.1),
+          vx: (Math.random() - 0.5) * 0.04,
+          baseOpacity: 0.1 + Math.random() * 0.4,
+          pulseOffset: Math.random() * Math.PI * 2,
+          pulseSpeed: 0.2 + Math.random() * 0.6,
+        });
+      }
+
+      stateRef.current = { particles: particles, blobs: blobs };
+    };
+
+    const resize = function () {
+      const rect = parent.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      sizeRef.current = { w: rect.width, h: rect.height };
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      canvas.style.width = rect.width + 'px';
+      canvas.style.height = rect.height + 'px';
+      const ctx = canvas.getContext('2d');
+      if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      build(rect.width, rect.height);
+    };
+
+    const ro = new ResizeObserver(resize);
+    ro.observe(parent);
+    resize();
+
+    const draw = function (t) {
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      const s = sizeRef.current;
+      const w = s.w, h = s.h;
+      ctx.clearRect(0, 0, w, h);
+
+      const { particles, blobs } = stateRef.current;
+
+      // --- Dibujar blobs (nebulosa) ---
+      for (let i = 0; i < blobs.length; i++) {
+        const b = blobs[i];
+        b.x += b.vx;
+        b.y += b.vy;
+        if (b.x < -b.r) b.x = w + b.r;
+        if (b.x > w + b.r) b.x = -b.r;
+        if (b.y < -b.r) b.y = h + b.r;
+        if (b.y > h + b.r) b.y = -b.r;
+
+        const grad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+        let color;
+        if (b.hue === 'lime') color = 'rgba(180,255,120,' + b.opacity + ')';
+        else if (b.hue === 'blue') color = 'rgba(120,180,255,' + b.opacity + ')';
+        else color = 'rgba(255,255,255,' + b.opacity + ')';
+        grad.addColorStop(0, color);
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // --- Dibujar partículas pequeñas encima ---
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.y < -10) { p.y = h + 10; p.x = Math.random() * w; }
+        if (p.x < -10) p.x = w + 10;
+        if (p.x > w + 10) p.x = -10;
+
+        const pulse = 0.5 + 0.5 * Math.sin(t * 0.001 * p.pulseSpeed + p.pulseOffset);
+        const alpha = p.baseOpacity * (0.4 + 0.6 * pulse);
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,' + alpha + ')';
+        ctx.fill();
+      }
+
+      // --- Anillo suave si se pide (para Portfolio) ---
+      if (ring && w > 0 && h > 0) {
+        const ringR = Math.min(w, h) * 0.37;
+        const bandW = 50;
+        const inner = Math.max(0, ringR - bandW * 4);
+        const outer = ringR + bandW * 4;
+        if (outer > 0) {
+          const grad = ctx.createRadialGradient(w / 2, h / 2, inner, w / 2, h / 2, outer);
+          grad.addColorStop(0, 'rgba(180,255,120,0.02)');
+          grad.addColorStop(0.5, 'rgba(180,255,120,0.035)');
+          grad.addColorStop(0.58, 'rgba(255,255,255,0.02)');
+          grad.addColorStop(1, 'rgba(255,255,255,0)');
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, w, h);
+        }
+      }
+
+      rafRef.current = requestAnimationFrame(draw);
+    };
+    rafRef.current = requestAnimationFrame(draw);
+
+    return function () {
+      cancelAnimationFrame(rafRef.current);
+      ro.disconnect();
+    };
+  }, [count, ring]);
+
+    return (
+    <canvas 
+      ref={canvasRef} 
+      className="absolute pointer-events-none" 
+      style={{ 
+        zIndex: 0,
+        top: '-30%',
+        height: '160%',
+        width: '100%'
+      }} 
+      aria-hidden="true" 
+    />
+  );
+}
+
+/* ============ LÍNEAS CURVAS (TRAZOS DE LUZ) ============ */
+function LineField({ variant }) {
+  const v = variant || 'hero';
+
+  // Cada sección tiene su propia configuración de curvas
+  // Nota: 'marvelsBottom' ya no se usa, pero se deja por compatibilidad
+  const CONFIGS = {
+    hero:         { count: 7, opacity: 0.10, speed: 1.0, lime: 1 },
+    photographer: { count: 5, opacity: 0.08, speed: 0.8, lime: 1 },
+    projects:     { count: 6, opacity: 0.09, speed: 0.9, lime: 1 },
+    marvels:      { count: 5, opacity: 0.10, speed: 0.8, lime: 1 },
+    marvelsBottom:{ count: 4, opacity: 0.08, speed: 0.7, lime: 0 },
+  };
+  const cfg = CONFIGS[v] || CONFIGS.hero;
+
+  const svgRef = useRef(null);
+  const curvesRef = useRef([]);
+  const rafRef = useRef(0);
+
+  useEffect(function () {
+    const svg = svgRef.current;
+    if (!svg) return;
+
+    // Filtro de glow para los destellos
+    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+    filter.setAttribute('id', 'lineGlow-' + v);
+    filter.setAttribute('x', '-50%');
+    filter.setAttribute('y', '-50%');
+    filter.setAttribute('width', '200%');
+    filter.setAttribute('height', '200%');
+    const blur = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
+    blur.setAttribute('stdDeviation', '3');
+    filter.appendChild(blur);
+    defs.appendChild(filter);
+    svg.appendChild(defs);
+
+    // Crear las curvas
+    const curves = [];
+    for (let i = 0; i < cfg.count; i++) {
+      const startY = 100 + Math.random() * 800;
+      const endY = 100 + Math.random() * 800;
+      const midY = (startY + endY) / 2 + (Math.random() - 0.5) * 300;
+      const isLime = i < cfg.lime;
+
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', 'M -100 ' + startY + ' Q 400 ' + midY + ' 500 ' + ((startY + endY) / 2) + ' T 1100 ' + endY);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', isLime
+        ? 'rgba(180,255,120,' + (cfg.opacity * 1.4) + ')'
+        : 'rgba(255,255,255,' + cfg.opacity + ')');
+      path.setAttribute('stroke-width', '1');
+      svg.appendChild(path);
+
+      // Punto de luz que viaja
+      const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      dot.setAttribute('cx', '-100');
+      dot.setAttribute('cy', startY);
+      dot.setAttribute('r', isLime ? '2.5' : '2');
+      dot.setAttribute('fill', isLime ? 'rgba(180,255,120,1)' : 'rgba(255,255,255,1)');
+      dot.setAttribute('filter', 'url(#lineGlow-' + v + ')');
+      svg.appendChild(dot);
+
+      curves.push({
+        path: path,
+        dot: dot,
+        startY: startY,
+        endY: endY,
+        midY: midY,
+        phase: Math.random(),
+        speed: (0.00006 + Math.random() * 0.00006) * cfg.speed,
+        isLime: isLime,
+      });
+    }
+    curvesRef.current = curves;
+
+    const draw = function (t) {
+      for (let i = 0; i < curves.length; i++) {
+        const c = curves[i];
+        const progress = ((t * c.speed + c.phase) % 1);
+        const x = -100 + progress * 1200;
+        const p = progress;
+        const y = (1 - p) * (1 - p) * c.startY + 2 * (1 - p) * p * c.midY + p * p * c.endY;
+        c.dot.setAttribute('cx', x);
+        c.dot.setAttribute('cy', y);
+      }
+      rafRef.current = requestAnimationFrame(draw);
+    };
+    rafRef.current = requestAnimationFrame(draw);
+
+    return function () {
+      cancelAnimationFrame(rafRef.current);
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+    };
+  }, [v, cfg.count, cfg.opacity, cfg.speed, cfg.lime]);
+
+  return (
+    <svg
+      ref={svgRef}
+      className="absolute inset-0 pointer-events-none select-none w-full h-full"
+      viewBox="0 0 1000 1000"
+      preserveAspectRatio="xMidYMid slice"
+      style={{ zIndex: 0 }}
+      aria-hidden="true"
+    />
+  );
+}
+
+/* ============ INTRO ============ */
+function IntroSequence({ onDone }) {
+  const [hidden, setHidden] = useState(false);
+  const [phase, setPhase] = useState(0);
+
+  useEffect(function () {
+    const t1 = setTimeout(function () { setPhase(1); }, 300);
+    const t2 = setTimeout(function () { setPhase(2); }, 1600);
+    const t3 = setTimeout(function () { setPhase(3); }, 3000);
+    const t4 = setTimeout(function () {
+      setHidden(true);
+      if (onDone) onDone();
+    }, 3900);
+    return function () { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
+  }, [onDone]);
+
+  if (hidden) return null;
+
+  const fadeBg = phase >= 3;
+
+  return (
+    <div className="fixed inset-0 z-[100] pointer-events-none flex items-center justify-center">
+      <div
+        className="absolute inset-0 transition-opacity duration-[800ms]"
+        style={{ backgroundColor: '#0a0a0a', opacity: fadeBg ? 0 : 1 }}
+      />
+
+      {/* Círculos concéntricos */}
+      {[1, 2, 3].map(function (n) {
+        const size = 260 * n;
+        const visible = phase >= 1 && phase < 3;
+        return (
+          <div
+            key={n}
+            className="absolute left-1/2 top-1/2 rounded-full border border-white/10 transition-all duration-[2400ms] ease-out"
+            style={{
+              width: size, height: size,
+              marginLeft: -size / 2, marginTop: -size / 2,
+              opacity: visible ? 0.55 : 0,
+              transform: phase >= 2 ? 'scale(1.4)' : (phase >= 1 ? 'scale(1)' : 'scale(0.15)'),
+              transitionDelay: ((n - 1) * 120) + 'ms',
+            }}
+          />
+        );
+      })}
+
+      {/* 🔧 FIX #1 — Logo DENTRO del círculo, visible todo el tiempo */}
+      <div
+        className="relative transition-all duration-[1000ms]"
+        style={{
+          opacity: phase >= 3 ? 0 : 1,
+          transform: phase >= 2 ? 'scale(1)' : 'scale(0.9)',
+          transitionTimingFunction: 'cubic-bezier(0.22,1,0.36,1)',
+        }}
+      >
+        <img
+          src={ASSETS.logo}
+          alt={BRAND}
+          className="h-24 md:h-32 w-auto object-contain"
+          style={{ filter: 'drop-shadow(0 0 40px rgba(255,255,255,0.15))' }}
+        />
+      </div>
+
+      {/* 🔧 FIX #1 — Logo que vuela hacia el menú de navegación (mismo LOGO_AJ_1) */}
+      <div
+        className="absolute transition-all duration-[900ms]"
+        style={{
+          top: phase >= 3 ? '24px' : '50%',
+          left: phase >= 3 ? '24px' : '50%',
+          transform: phase >= 3
+            ? 'translate(0, 0) scale(0.42)'
+            : 'translate(-50%, -50%) scale(0.8)',
+          transformOrigin: 'top left',
+          opacity: phase >= 3 ? 1 : 0,
+          transitionTimingFunction: 'cubic-bezier(0.22,1,0.36,1)',
+        }}
+      >
+        <img
+          src={ASSETS.logo}
+          alt={BRAND}
+          className="h-24 md:h-32 w-auto object-contain"
+        />
+      </div>
+    </div>
+  );
+}
+
+/* ============ TOPBAR ============ */
+const NAV_LINKS = [
+  { label: 'Sobre mí',   href: '#sobre-mi'   },
+  { label: 'Portafolio', href: '#portafolio' },
+  { label: 'Contacto',   href: '#contacto'   },
+];
+
+function TopBar() {
+  const [open, setOpen] = useState(false);
+  const [barReady, setBarReady] = useState(false);
+
+  useEffect(function () {
+    const t = setTimeout(function () { setBarReady(true); }, 300);
+    return function () { clearTimeout(t); };
+  }, []);
+
+  return (
+    <header className="fixed top-0 left-0 right-0 z-50 pt-6 px-6 md:px-10">
+      <div className="flex items-center justify-between gap-4">
+        <a
+          href="#hero"
+          className="shrink-0 transition-opacity duration-500 block"
+          style={{ opacity: barReady ? 1 : 0, height: '48px' }}
+        >
+          {/* 🔧 FIX #1 — Mismo LOGO_AJ_1 en la barra */}
+          <img
+            src={ASSETS.logo}
+            alt={BRAND}
+            className="h-12 w-auto object-contain"
+          />
+        </a>
+
+        <nav className="hidden md:flex items-center gap-2">
+          {NAV_LINKS.map(function (link) {
+            return (
+              <a
+                key={link.href}
+                href={link.href}
+                className="rounded-full border border-white/15 px-4 py-2 text-xs uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/[0.06] transition"
+              >
+                {link.label}
+              </a>
+            );
+          })}
+        </nav>
+
+        <button
+          onClick={function () { setOpen(!open); }}
+          aria-label="Menú"
+          className="md:hidden grid place-items-center w-10 h-10 rounded-full border border-white/15 text-white/70 hover:text-white hover:bg-white/[0.06] transition"
+        >
+          {open ? <IconClose className="w-4 h-4" /> : <IconMenu className="w-4 h-4" />}
+        </button>
+      </div>
+
+      <div
+        className="md:hidden mt-3 ml-auto max-w-sm rounded-2xl border border-white/10 bg-black/60 backdrop-blur-xl overflow-hidden transition-all duration-300"
+        style={{
+          opacity: open ? 1 : 0,
+          transform: open ? 'translateY(0)' : 'translateY(-8px)',
+          pointerEvents: open ? 'auto' : 'none',
+        }}
+      >
+        <nav className="flex flex-col p-2">
+          {NAV_LINKS.map(function (link) {
+            return (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={function () { setOpen(false); }}
+                className="px-4 py-3 rounded-xl text-sm text-white/80 hover:text-white hover:bg-white/[0.06] transition"
+              >
+                {link.label}
+              </a>
+            );
+          })}
+        </nav>
+        <div className="mt-1 px-4 py-3 border-t border-white/10 flex items-center justify-between text-xs text-white/50">
+          <span>Síguenos</span>
+          <div className="flex items-center gap-3 text-white/60">
+            {SOCIALS.map(function (s) {
+              return (
+                <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer" aria-label={s.name} className="hover:text-white transition">
+                  <SocialIcon name={s.icon} className="w-4 h-4" />
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/* ============ REVEAL ============ */
+function Reveal({ children, delay, className, photo }) {
+  const [ref, inView] = useInView();
+  const d = delay || 0;
+  const base = photo ? 'anim-photo' : 'anim-base';
+  return (
+    <div
+      ref={ref}
+      className={(className || '') + ' ' + base + (inView ? ' anim-in' : '')}
+      style={{ transitionDelay: (inView ? d : 0) + 'ms' }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* ============ HERO ============ */
+const HERO_CARDS = [
+  { src: ASSETS.hero3, alt: 'Pastel',     pos: 'top-[8%] left-[2%] md:top-[10%] md:left-[4%]',    size: 'w-[90px] md:w-[190px] aspect-[3/4]',   depth: 22 },
+  { src: ASSETS.hero5, alt: 'Tulipán',    pos: 'top-[8%] right-[2%] md:top-[10%] md:right-[4%]',   size: 'w-[90px] md:w-[190px] aspect-[3/4]',   depth: 22, social: 'instagram', url: 'https://www.instagram.com/ajdigitalartstudio' },
+  { src: ASSETS.hero2, alt: 'Tambor',     pos: 'top-[26%] left-[4%] md:top-[6%] md:left-[24%]',    size: 'w-[120px] md:w-[260px] aspect-[16/10]', depth: 26, social: 'facebook',  url: 'https://www.facebook.com/AJDigitalArtMX' },
+  { src: ASSETS.hero7, alt: 'Músicos',    pos: 'top-[26%] right-[4%] md:top-[6%] md:right-[24%]',   size: 'w-[120px] md:w-[260px] aspect-[16/10]', depth: 26, social: 'youtube',   url: 'https://www.youtube.com/@AJMarqDigitalArt'},
+  { src: ASSETS.hero1, alt: 'Torito',     pos: 'bottom-[12%] left-[4%] md:bottom-[8%] md:left-[6%]',  size: 'w-[120px] md:w-[230px] aspect-[4/3]',   depth: 24,social: 'tiktok',    url: 'https://www.tiktok.com/@ajmarq' },
+  { src: ASSETS.hero4, alt: 'Boda',       pos: 'bottom-[12%] right-[4%] md:bottom-[8%] md:right-[6%]', size: 'w-[120px] md:w-[230px] aspect-[4/3]',   depth: 30, viewAlbum: true },
+];
+
+function Hero() {
+  const ref = useRef(null);
+
+  useEffect(function () {
+    const el = ref.current;
+    if (!el) return;
+    const onMove = function (e) {
+      const mx = e.clientX / window.innerWidth - 0.5;
+      const my = e.clientY / window.innerHeight - 0.5;
+      el.style.setProperty('--mx', String(mx));
+      el.style.setProperty('--my', String(my));
+    };
+    window.addEventListener('mousemove', onMove);
+    return function () { window.removeEventListener('mousemove', onMove); };
+  }, []);
+
+  return (
+    <section
+      ref={ref}
+      id="hero"
+      className="matte relative min-h-screen pt-32 pb-24 overflow-hidden"
+      style={{ '--mx': 0, '--my': 0 }}
+    >
+      <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-white/[0.04] blur-3xl pointer-events-none" style={{ zIndex: 1 }} />
+
+    {/* Centro: logo + texto. Con z-index alto para que quede SOBRE las fotos */}
+<div className="relative grid place-items-center min-h-[85vh] px-6 text-center pointer-events-none" style={{ zIndex: 30 }}>
+  <div className="max-w-2xl w-full flex flex-col items-center pointer-events-auto">
+          {/* 🔧 Logo del hero = LOGO_AJ_2 (exclusivo de aquí) */}
+          <Reveal>
+            <img
+              src={ASSETS.logo2}
+              alt={BRAND}
+              className="w-full max-w-[380px] md:max-w-[480px] h-auto object-contain"
+            />
+          </Reveal>
+         
+
+        </div>
+      </div>
+
+      {/* Fotos del hero con z-index bajo para que no tapen el texto */}
+      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
+      {HERO_CARDS.map(function (c, i) {
+  if (!c.src) return null;
+  return (
+    <div
+      key={i}
+      className={'absolute ' + c.pos + ' ' + c.size + ' pointer-events-auto'}
+      style={{
+        transform: 'translate3d(calc(var(--mx) * ' + c.depth + 'px), calc(var(--my) * ' + c.depth + 'px), 0)',
+        transition: 'transform 0.4s cubic-bezier(0.22,1,0.36,1)',
+      }}
+    >
+      <div className="group relative w-full h-full overflow-hidden ring-1 ring-white/10" style={{ boxShadow: '0 30px 80px -30px rgba(0,0,0,0.9)' }}>
+        <SafeImage src={c.src} alt={c.alt} className="w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-105" />
+
+        {/* Ícono social en esquina inferior izquierda */}
+        {c.social && (
+         <a
+  href={c.url}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label={c.alt + ' en ' + c.social}
+  className="absolute left-3 bottom-3 grid place-items-center w-9 h-9 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white/80 hover:text-white hover:bg-white/[0.12] hover:border-white/40 transition"
+  style={{ zIndex: 20, pointerEvents: 'auto' }}
+>
+  <SocialIcon name={c.social} className="w-4 h-4" />
+</a>
+        )}
+
+{c.viewAlbum && (
+  <a href="#portafolio" className="absolute left-3 bottom-3 flex items-center gap-2">
+            <div className="w-[18px] h-[18px] rounded-full bg-white" style={{ boxShadow: '0 0 14px 3px rgba(255,255,255,0.7)' }} />
+            <div className="grid place-items-center rounded-full bg-black/50 backdrop-blur-md text-white text-[11px] border border-white/20" style={{ paddingLeft: 10, paddingRight: 10, height: 30 }}>
+              Ver álbum
+            </div>
+          </a>
+        )}
+      </div>
+    </div>
+  );
+})}
+      </div>
+    </section>
+  );
+}
+
+/* ============ ABOUT ============ */
+function AboutMe() {
+  return (
+    <section id="sobre-mi" className="matte relative px-6 md:px-12 py-32 overflow-hidden">
+
+      <SafeImage src={ASSETS.aboutBack1} alt="" decorative className="absolute left-0 top-[15%] w-[280px] md:w-[340px] opacity-[0.2] pointer-events-none select-none" style={{ zIndex: 1 }} />
+      <SafeImage src={ASSETS.aboutBack2} alt="" decorative className="absolute right-0 top-[12%] w-[360px] md:w-[460px] opacity-[0.2] pointer-events-none select-none" style={{ zIndex: 1 }} />
+      <SafeImage src={ASSETS.aboutBack3} alt="" decorative className="absolute left-[8%] bottom-[10%] w-[300px] md:w-[380px] opacity-[0.2] pointer-events-none select-none" style={{ zIndex: 1 }} />
+      <SafeImage src={ASSETS.aboutBack5} alt="" decorative className="absolute right-[4%] bottom-0 w-[280px] md:w-[360px] opacity-[0.2] pointer-events-none select-none" style={{ zIndex: 1 }} />
+
+      <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-white/[0.02] blur-3xl pointer-events-none" style={{ zIndex: 1 }} />
+
+      <div className="relative max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-start" style={{ zIndex: 2 }}>
+        <Reveal className="relative w-full max-w-[440px] justify-self-center md:justify-self-end" delay={0}>
+          <div className="relative" style={{ backgroundColor: '#efeae0', padding: 16, paddingBottom: 80, boxShadow: '0 40px 100px -30px rgba(0,0,0,0.8)' }}>
+            <h2 className="absolute -top-12 md:-top-20 left-1/2 -translate-x-1/2 font-display font-black text-4xl md:text-6xl leading-[0.95] uppercase text-white whitespace-nowrap">              Sobre mí
+            </h2>
+            <SafeImage src={ASSETS.about} alt={'Retrato de ' + PHOTOGRAPHER + ' ' + PHOTOGRAPHER_LAST} className="w-full aspect-[3/4] object-cover" />
+            <div className="absolute bottom-6 left-6 text-black font-display font-black text-xl leading-none">
+              {PHOTOGRAPHER}<br />{PHOTOGRAPHER_LAST}
+            </div>
+          </div>
+        </Reveal>
+
+        <div className="space-y-8 max-w-xl">
+          <Reveal>
+            <h2 className="font-display font-medium text-3xl md:text-4xl leading-[1.1] uppercase">
+              capturando historias<br />que perduran en el tiempo
+            </h2>
+          </Reveal>
+          <Reveal delay={200}>
+            <div className="space-y-4 text-white/55 text-[15px] leading-relaxed">
+              <p>Soy {PHOTOGRAPHER} {PHOTOGRAPHER_LAST}, fotógrafo y fundador de {BRAND}. Mi trabajo nace de la obsesión por la luz, el detalle y las emociones que solo una imagen bien construida puede transmitir. Cada sesión es una oportunidad para contar algo nuevo, para detener el tiempo en un instante irrepetible.</p>
+              <p>Desde retratos íntimos hasta bodas, quinceañeras, sesiones y proyectos comerciales, combino técnica, dirección y sensibilidad artística para que cada fotografía hable por sí sola. Mi compromiso es simple: entregarte imágenes que no solo se vean bien, sino que se sientan auténticas y tuyas.</p>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const PROJECTS = [
+  { src: ASSETS.portfolioBodas,     alt: 'Bodas',          tall: true,  mt: 'md:mt-12', w: 'w-[220px]', folder: 'bodas' },
+  { src: ASSETS.portfolioQuince,    alt: 'Quinceañeras',   tall: false, mt: 'md:mt-24', w: 'w-[220px]', folder: 'quinceycumpleanos' },
+  { src: ASSETS.portfolioSesiones,  alt: 'Sesiones',       tall: false, mt: 'md:mt-6',  w: 'w-[230px]', folder: 'sesiones' },
+  { src: ASSETS.portfolioComercial, alt: 'Comerciales',    tall: true,  mt: 'md:mt-20', w: 'w-[216px]', folder: 'comerciales' },
+  { src: ASSETS.portfolioPremios,   alt: 'Premios',        tall: false, mt: 'md:mt-10', w: 'w-[200px]', folder: 'premiados' },
+  { src: ASSETS.portfolioDigitalArt,   alt: 'Digital Art',            tall: false, mt: 'md:mt-14', w: 'w-[210px]', folder: 'digitalart' },
+  { src: ASSETS.portfolioDeportesEspect, alt: 'Deportes y Espectáculos', tall: true, mt: 'md:mt-16', w: 'w-[220px]', folder: 'deportesyespectaculos' },
+];
+
+function Portfolio() {
+  const [activeGallery, setActiveGallery] = useState(null);
+
+    // 🔧 Escuchar el clic en "Ver las obras" para abrir el Mix
+  useEffect(function () {
+    const handleOpenMix = function () {
+      setActiveGallery('mix');
+    };
+    window.addEventListener('open-mix-gallery', handleOpenMix);
+    return function () {
+      window.removeEventListener('open-mix-gallery', handleOpenMix);
+    };
+  }, []);
+
+ return (
+  <section id="portafolio" className="matte relative px-6 md:px-12 py-32 overflow-hidden">
+
+    <div className="relative max-w-7xl mx-auto" style={{ zIndex: 2 }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12 md:mb-20">
+        <Reveal>
+          <h2 className="font-display font-black text-4xl sm:text-5xl md:text-6xl uppercase leading-[0.95]">
+            Portafolio<br />de proyectos
+          </h2>
+        </Reveal>
+        <Reveal delay={150}>
+          <p className="text-white/55 text-[15px] max-w-md">
+            Explora una selección de trabajos que abarcan bodas, quinceañeras, sesiones, comerciales y premios. Cada proyecto está pensado como una pieza única donde la técnica y la narrativa visual se encuentran.
+          </p>
+          <button 
+          type="button"
+          onClick={function () { window.dispatchEvent(new CustomEvent('open-mix-gallery')); }} 
+          className="group mt-6 inline-flex items-center gap-3 text-sm uppercase tracking-widest text-white/70 hover:text-white transition cursor-pointer bg-transparent border-none p-0"
+          >
+          Ver las obras <IconMoveRight className="w-4 h-4 transition group-hover:translate-x-1" />
+          </button>
+        </Reveal>
+      </div>
+
+      {/* Contenedor con scroll horizontal para móvil, grid normal en PC */}
+      <div className="flex md:grid overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none gap-6 md:gap-8 pb-8 md:pb-0 md:grid-cols-4 w-full items-start">
+        {PROJECTS.slice(0, 4).map(function (p, i) {
+          if (!p.src) return null;
+          return (
+            <Reveal key={i} delay={i * 120} className="snap-center shrink-0 w-[75vw] sm:w-[300px] md:w-auto md:mt-0">
+              <button
+                type="button"
+                onClick={function () { setActiveGallery(p.folder); }}
+                className="block w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm"
+                aria-label={'Abrir galería de ' + p.alt}
+              >
+                <div className="group relative overflow-hidden ring-1 ring-white/10" style={{ boxShadow: '0 30px 80px -30px rgba(0,0,0,0.8)' }}>
+                  <SafeImage
+                    src={p.src}
+                    alt={p.alt}
+                    className="w-full aspect-[3/4] object-cover grayscale hover:grayscale-0 transition-all duration-[900ms] ease-out group-hover:scale-110"
+                  />
+                </div>
+                <div className="text-center space-y-3 mt-4">
+                  <h3 className="font-display font-bold text-sm uppercase tracking-wider text-white">{p.alt}</h3>
+                  <span className="inline-flex items-center gap-2 text-xs text-white/60 border border-white/15 rounded-full px-3 py-1.5 group-hover:bg-white/5 transition">
+                    ver más
+                    <span className="w-4 h-4 rounded-full border border-white/20 grid place-items-center">
+                      <IconArrowUpRight className="w-2.5 h-2.5" />
+                    </span>
+                  </span>
+                </div>
+              </button>
+            </Reveal>
+          );
+        })}
+      </div>
+
+      {/* Fila de abajo: 3 proyectos, scroll horizontal en móvil y centrado en PC */}
+      <div className="flex md:grid overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none gap-6 md:gap-8 mt-2 md:mt-10 pb-8 md:pb-0 md:grid-cols-6 w-full items-start">
+        {PROJECTS.slice(4, 7).map(function (p, i) {
+          if (!p.src) return null;
+          return (
+            <Reveal key={i + 4} delay={i * 120} className="snap-center shrink-0 w-[75vw] sm:w-[300px] md:w-auto md:col-span-2">
+              <button
+                type="button"
+                onClick={function () { setActiveGallery(p.folder); }}
+                className="block w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-sm"
+                aria-label={'Abrir galería de ' + p.alt}
+              >
+                <div className="group relative overflow-hidden ring-1 ring-white/10" style={{ boxShadow: '0 30px 80px -30px rgba(0,0,0,0.8)' }}>
+                  <SafeImage
+                    src={p.src}
+                    alt={p.alt}
+                    className="w-full aspect-[3/4] object-cover grayscale hover:grayscale-0 transition-all duration-[900ms] ease-out group-hover:scale-110"
+                  />
+                </div>
+                <div className="text-center space-y-3 mt-4">
+                  <h3 className="font-display font-bold text-sm uppercase tracking-wider text-white">{p.alt}</h3>
+                  <span className="inline-flex items-center gap-2 text-xs text-white/60 border border-white/15 rounded-full px-3 py-1.5 group-hover:bg-white/5 transition">
+                    ver más
+                    <span className="w-4 h-4 rounded-full border border-white/20 grid place-items-center">
+                      <IconArrowUpRight className="w-2.5 h-2.5" />
+                    </span>
+                  </span>
+                </div>
+              </button>
+            </Reveal>
+          );
+        })}
+      </div>
+    </div>
+
+    {activeGallery && (
+      <GalleryModal
+        folder={activeGallery}
+        onClose={function () { setActiveGallery(null); }}
+      />
+    )}
+  </section>
+);  
+}
+
+/* ============ CONTACT ============ */
+function ContactSection() {
+  const sectionRef = useRef(null);
+  const bgRef = useRef(null);
+
+  useEffect(function () {
+    const onScroll = function () {
+      const section = sectionRef.current;
+      const bg = bgRef.current;
+      if (!section || !bg) return;
+      const rect = section.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const total = rect.height + vh;
+      const passed = vh - rect.top;
+      const progress = Math.max(0, Math.min(1, passed / total));
+      bg.style.transform = 'translateY(' + (-15 * progress) + '%)';
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return function () { window.removeEventListener('scroll', onScroll); };
+  }, []);
+
+  return (
+    <section ref={sectionRef} id="contacto" className="relative">
+      <div className="relative px-6 md:px-12 pt-28 pb-12 overflow-hidden matte">
+        <div className="relative" style={{ zIndex: 2 }}>
+          <Reveal>
+<h2 className="font-display font-medium uppercase text-3xl sm:text-5xl md:text-[90px] leading-[0.95] tracking-tight max-w-[1200px]">              Hablemos de tu próximo proyecto visual
+            </h2>
+          </Reveal>
+          <div className="flex flex-wrap gap-4 justify-between items-center mt-16 text-xs uppercase tracking-widest text-white/50">
+            <a href="#portafolio" className="group inline-flex items-center gap-2 hover:text-white transition">
+              Ver las obras <IconMoveRight className="w-3.5 h-3.5 transition group-hover:translate-x-1" style={{ transform: 'rotate(-45deg)' }} />
+            </a>
+            <a href="#hero" className="group inline-flex items-center gap-2 hover:text-white transition">
+              Volver arriba <IconMoveRight className="w-3.5 h-3.5 transition group-hover:translate-y-1" style={{ transform: 'rotate(-90deg)' }} />
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative min-h-[80vh] overflow-hidden">
+        <div ref={bgRef} className="absolute inset-0 -top-[10%] -bottom-[10%]" style={{ willChange: 'transform' }}>
+          <SafeImage src={ASSETS.contactBg} alt="" decorative className="w-full h-full object-cover" />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-black/40" />
+        <LineField variant="marvelsBottom" />
+        <div className="relative h-full grid place-items-center px-6 py-20 text-center">
+          <div className="max-w-3xl">
+            <Reveal>
+              <h3 className="font-display font-black uppercase text-4xl md:text-6xl leading-[1] tracking-tight">
+                Ponte en contacto con <span className="text-lime">{BRAND}</span>
+              </h3>
+            </Reveal>
+
+<Reveal delay={150}>
+  <p className="mt-6 text-white/70 text-[15px] leading-relaxed max-w-xl mx-auto">
+    ¿Tienes una idea, un proyecto o una sesión en mente? Escríbeme y hagámoslo realidad.
+  </p>
+</Reveal>
+
+            <div className="flex items-center justify-center gap-1">
+              <Reveal delay={300}>
+                <a
+                  href={'mailto:' + EMAIL}
+                  className="mt-10 inline-flex bg-white text-black rounded-full px-6 py-2 text-sm font-medium hover:bg-white/90 uppercase transition"
+                >
+                  CONTÁCTANOS
+                </a>
+              </Reveal>
+            </div>
+
+            <Reveal delay={450}>
+              <div className="mt-14">
+                <p className="text-white/50 text-[11px] uppercase tracking-[0.3em] mb-5">
+                  Sígueme en redes
+                </p>
+                <div className="flex items-center justify-center gap-3 flex-wrap">
+                  {SOCIALS.map(function (s) {
+                    return (
+                      <a
+                        key={s.name}
+                        href={s.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={s.name}
+                        className="group flex items-center gap-2 rounded-full border border-white/20 bg-black/40 backdrop-blur-sm px-4 py-2 text-xs uppercase tracking-widest text-white/80 hover:text-white hover:bg-white/[0.12] hover:border-white/40 transition"
+                      >
+                        <SocialIcon name={s.icon} className="w-4 h-4" />
+                        <span>{s.name}</span>
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============ FOOTER ============ */
+function Footer() {
+  return (
+    <footer className="relative border-t border-white/10 px-6 md:px-12 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/40 bg-[#0a0a0a]">
+      <span>© {new Date().getFullYear()} {BRAND} · {PHOTOGRAPHER} {PHOTOGRAPHER_LAST}</span>
+      <a
+        href="https://michitodisenador.github.io/michito_disenador_portafolio/index.html"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="hover:text-white transition"
+      >
+        Diseñado por Michito Disenador 2026
+      </a>
+    </footer>
+  );
+}
+
+/* ============ LIGHTBOX (visor de foto ampliada) ============ */
+function Lightbox({ images, index, onClose, onPrev, onNext }) {
+  useEffect(function () {
+    const onKey = function (e) {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft') onPrev();
+      if (e.key === 'ArrowRight') onNext();
+    };
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKey);
+    return function () {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [onClose, onPrev, onNext]);
+
+  return (
+    <div
+      className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-md flex items-center justify-center"
+      onClick={onClose}
+    >
+      <button
+        onClick={onClose}
+        aria-label="Cerrar"
+        className="absolute top-6 right-6 z-10 grid place-items-center w-11 h-11 rounded-full border border-white/20 text-white/80 hover:text-white hover:bg-white/10 transition"
+      >
+        <IconClose className="w-5 h-5" />
+      </button>
+
+      <button
+        onClick={function (e) { e.stopPropagation(); onPrev(); }}
+        aria-label="Anterior"
+        className="absolute left-4 md:left-8 z-10 grid place-items-center w-12 h-12 rounded-full border border-white/20 text-white/80 hover:text-white hover:bg-white/10 transition"
+      >
+        <IconMoveRight className="w-5 h-5" style={{ transform: 'rotate(180deg)' }} />
+      </button>
+
+      <button
+        onClick={function (e) { e.stopPropagation(); onNext(); }}
+        aria-label="Siguiente"
+        className="absolute right-4 md:right-8 z-10 grid place-items-center w-12 h-12 rounded-full border border-white/20 text-white/80 hover:text-white hover:bg-white/10 transition"
+      >
+        <IconMoveRight className="w-5 h-5" />
+      </button>
+
+      <div
+        className="max-w-[92vw] max-h-[88vh] relative"
+        onClick={function (e) { e.stopPropagation(); }}
+      >
+        <img
+          src={images[index]}
+          alt={'Foto ' + (index + 1)}
+          className="max-w-[92vw] max-h-[88vh] object-contain select-none"
+          style={{ animation: 'lbFade 400ms cubic-bezier(0.22,1,0.36,1)' }}
+        />
+        <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-white/60 text-xs uppercase tracking-[0.3em]">
+          {index + 1} / {images.length}
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes lbFade { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+      `}</style>
+    </div>
+  );
+}
+
+/* ============ GALLERY MODAL (ventana de categoría) ============ */
+function GalleryModal({ folder, onClose }) {
+  const images = GALLERIES[folder] || [];
+  const title = GALLERY_TITLES[folder] || folder;
+  const [lbIndex, setLbIndex] = useState(-1);
+
+  useEffect(function () {
+    document.body.style.overflow = 'hidden';
+    const onKey = function (e) { if (e.key === 'Escape' && lbIndex < 0) onClose(); };
+    window.addEventListener('keydown', onKey);
+    return function () {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [onClose, lbIndex]);
+
+  return (
+    <div className="fixed inset-0 z-[150] bg-[#0a0a0a]/98 backdrop-blur-xl overflow-y-auto gallery-scroll">
+      <div className="sticky top-0 z-20 backdrop-blur-xl bg-[#0a0a0a]/85 border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 md:px-10 py-5 flex items-center justify-between gap-4">
+          <div>
+            <p className="text-white/40 text-[10px] uppercase tracking-[0.35em] mb-1">Portafolio</p>
+            <h2 className="font-display font-black text-4xl sm:text-5xl md:text-6xl uppercase leading-[0.95]">              {title}
+            </h2>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Cerrar galería"
+            className="grid place-items-center w-11 h-11 rounded-full border border-white/20 text-white/80 hover:text-white hover:bg-white/10 transition shrink-0"
+          >
+            <IconClose className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 md:px-10 py-14">
+        <div className="columns-1 sm:columns-2 lg:columns-3 gap-5 [column-fill:_balance]">
+          {images.map(function (src, i) {
+            return (
+              <div
+                key={i}
+                className="gallery-item mb-5 break-inside-avoid"
+                style={{ animationDelay: (i * 60) + 'ms' }}
+                onClick={function () { setLbIndex(i); }}
+              >
+                <div className="group relative overflow-hidden ring-1 ring-white/10 cursor-zoom-in">
+                  <SafeImage
+                    src={src}
+                    alt={title + ' ' + (i + 1)}
+                    className="w-full h-auto object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105"
+                    style={{ willChange: 'transform' }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                  <div className="absolute bottom-3 right-3 text-[10px] text-white/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 uppercase tracking-widest">
+                    {i + 1}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {images.length === 0 && (
+          <p className="text-white/40 text-center py-20 text-sm">
+            No hay fotos todavía en esta categoría.
+          </p>
+        )}
+
+        <div className="flex justify-center mt-16">
+          <button
+            onClick={onClose}
+            className="inline-flex items-center gap-2 rounded-full border border-white/20 px-6 py-3 text-xs uppercase tracking-widest text-white/70 hover:text-white hover:bg-white/5 transition"
+          >
+            ← Volver al portafolio
+          </button>
+        </div>
+      </div>
+
+      {lbIndex >= 0 && (
+        <Lightbox
+          images={images}
+          index={lbIndex}
+          onClose={function () { setLbIndex(-1); }}
+          onPrev={function () { setLbIndex(function (v) { return (v - 1 + images.length) % images.length; }); }}
+          onNext={function () { setLbIndex(function (v) { return (v + 1) % images.length; }); }}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ============ APP ============ */
+function AJDigitalArtLanding() {
+  const [introDone, setIntroDone] = useState(false);
+  return (
+    <React.Fragment>
+      {/* Fondo único y fijo: evita reinicios/cortes de nebulosa y trazos entre secciones */}
+      <div
+        aria-hidden="true"
+        className="fixed inset-0 pointer-events-none overflow-hidden"
+        style={{ zIndex: 0, backgroundColor: '#0a0a0a' }}
+      >
+        <StarField count={700} />
+        <LineField variant="hero" />
+      </div>
+      {!introDone && <IntroSequence onDone={function () { setIntroDone(true); }} />}
+      <div className="relative" style={{ zIndex: 1 }}>
+      <TopBar />
+      <main>
+        <Hero />
+        <AboutMe />
+        <Portfolio />
+        <ContactSection />
+        <Footer />
+      </main>
+      </div>
+    </React.Fragment>
+  );
+}
+
+try {
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<AJDigitalArtLanding />);
+} catch (err) {
+  var el = document.getElementById('boot-error');
+  if (el) {
+    el.style.display = 'block';
+    el.textContent = 'Error al renderizar: ' + err.message + '\n\n' + err.stack;
+  }
+}
+</script>
+</body>
+</html>
